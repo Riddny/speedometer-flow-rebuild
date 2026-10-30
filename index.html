@@ -1,0 +1,1157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<title>Growth Audit — Speedometer GPS</title>
+<link rel="icon" href="img/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: only dark;
+  /* ---- Speedometer GPS (LightApps), extracted from their live screens ---- */
+  --sm-bg:#000000; --sm-card:#141416; --sm-card2:#1C1C1E; --sm-line:#2A2A2D; --sm-mock:#252527;
+  --sm-ink:#FFFFFF; --sm-txt:#9A9BA0; --sm-muted:#6C6D72;
+  --sm-blue:#3F86F0; --sm-blue2:#6AA8F6; --sm-blue-lab:#4A8DF0; --sm-red:#E5312F; --sm-red-lab:#E8413C;
+  --r-ctl:15px; --r-media:44px;
+  /* ---- the report shell, in their own dark palette ---- */
+  --bg:#050506; --bg2:#0E0E10; --surf:#121214;
+  --hair:rgba(255,255,255,.09); --hair2:rgba(255,255,255,.16);
+  --ink:#F5F5F7; --ink2:#A7A8AD; --ink3:#727378;
+  --accent:#3F86F0; --accent-lift:#78B0FF;
+  --panel:#FFFFFF; --panel-ink:#111214; --panel-muted:#5E6066; --panel-line:#E8E9EC;
+  --accent-ink:#1F5FCC;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+a{color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 32px}
+@media(max-width:700px){.wrap{padding:0 20px}}
+
+/* ============ top bar ============ */
+.nav{position:sticky;top:0;z-index:70;background:rgba(5,5,6,.86);backdrop-filter:blur(18px) saturate(160%);
+  border-bottom:1px solid var(--hair)}
+.nav-in{max-width:1080px;margin:0 auto;padding:0 32px;height:58px;display:flex;align-items:center;gap:18px}
+@media(max-width:700px){.nav-in{padding:0 16px;gap:12px}}
+.nav-brand{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+.nav-brand img{width:26px;height:26px;border-radius:7px;display:block;box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+.nav-brand span{color:var(--ink2);font-weight:500}
+.nav-brand b{color:var(--ink);font-weight:600}
+.nav-links{margin-left:auto;display:flex;gap:2px;align-items:center}
+.nav-links button{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;color:var(--ink3);transition:.16s}
+.nav-links button:hover{color:var(--ink)}
+.nav-links button.on{color:var(--ink);background:#1C1C1F;box-shadow:0 0 0 1px rgba(255,255,255,.08)}
+@media(max-width:640px){.nav-brand span{display:none}.nav-links button{padding:7px 10px}}
+
+.view{display:none}
+.view.on{display:block}
+
+/* ============ hero ============ */
+.hero{padding:104px 0 0;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-340px;left:50%;transform:translateX(-50%);
+  width:1100px;height:640px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(63,134,240,.26),transparent 72%)}
+.hero::after{content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(34% 44% at 6% 18%,rgba(229,49,47,.10),transparent 70%),
+   radial-gradient(34% 44% at 94% 16%,rgba(106,168,246,.14),transparent 70%)}
+.hero>*{position:relative;z-index:1}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-lift);margin-bottom:26px}
+.hero h1{font-size:76px;line-height:.98;font-weight:800;letter-spacing:-.045em;margin:0 0 24px}
+@media(max-width:820px){.hero h1{font-size:48px}.hero{padding-top:70px}}
+.hero .lede{font-size:20px;line-height:1.5;font-weight:400;color:var(--ink2);max-width:600px;margin:0 auto;letter-spacing:-.012em}
+@media(max-width:820px){.hero .lede{font-size:17px}}
+.hero .meta{margin-top:30px;font-size:12.5px;color:var(--ink3);letter-spacing:.02em}
+.hero .meta b{color:var(--ink2);font-weight:600}
+
+.stats{display:flex;justify-content:center;gap:0;margin:70px auto 0;max-width:760px;
+  border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.stat{flex:1;padding:26px 14px;text-align:center;border-left:1px solid var(--hair)}
+.stat:first-child{border-left:none}
+.stat b{display:block;font-size:26px;font-weight:700;letter-spacing:-.03em;color:var(--ink)}
+.stat span{display:block;font-size:11.5px;color:var(--ink3);margin-top:5px;line-height:1.35}
+@media(max-width:700px){.stat b{font-size:19px}.stat{padding:18px 8px}}
+
+.fb{max-width:760px;margin:0 auto;padding:30px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:26px;text-align:left}
+@media(max-width:700px){.fb{grid-template-columns:1fr;gap:20px;padding-top:24px}}
+.fb-k{grid-column:1/-1;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink3);text-align:center;margin-bottom:-6px}
+.fb-i{display:flex;gap:12px;align-items:flex-start}
+.fb-i .tick{width:18px;height:18px;flex:none;margin-top:3px;border-radius:50%;background:rgba(63,134,240,.2);
+  display:grid;place-items:center}
+.fb-i .tick svg{width:10px;height:10px;stroke:var(--accent-lift);stroke-width:3;fill:none;
+  stroke-linecap:round;stroke-linejoin:round}
+.fb-i p{font-size:14px;line-height:1.55;color:var(--ink2);margin:0}
+.fb-i p b{color:var(--ink);font-weight:700}
+
+.sec{padding:96px 0}
+.sec-k{font-size:11.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin-bottom:18px}
+.sec h2{font-size:38px;line-height:1.14;font-weight:700;letter-spacing:-.035em;margin:0 0 20px;max-width:680px}
+@media(max-width:820px){.sec h2{font-size:29px}.sec{padding:64px 0}}
+.sec p.body{font-size:17px;line-height:1.66;color:var(--ink2);max-width:640px;margin:0 0 18px;letter-spacing:-.008em}
+.sec p.body b{color:var(--ink);font-weight:600}
+.rule{height:1px;background:var(--hair);margin:0}
+
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px;max-width:820px}
+@media(max-width:760px){.notes{grid-template-columns:1fr}}
+.note{background:var(--surf);border:1px solid var(--hair);border-radius:16px;padding:24px 26px}
+.note h4{font-size:15px;font-weight:700;letter-spacing:-.015em;margin:0 0 8px}
+.note p{font-size:14px;line-height:1.6;color:var(--ink2);margin:0}
+
+.ideas{display:flex;flex-direction:column;gap:0;margin-top:14px;border-top:1px solid var(--hair)}
+.idea{display:grid;grid-template-columns:52px 1fr 180px;gap:26px;align-items:start;
+  padding:30px 4px;border-bottom:1px solid var(--hair);text-align:left;width:100%;transition:.18s}
+.idea:hover{background:rgba(255,255,255,.03)}
+@media(max-width:780px){.idea{grid-template-columns:38px 1fr;gap:16px}}
+.idea .no{font-size:13px;font-weight:700;color:var(--ink3);padding-top:4px;letter-spacing:.02em}
+.idea h3{font-size:21px;line-height:1.25;font-weight:700;letter-spacing:-.024em;margin:0 0 7px}
+@media(max-width:820px){.idea h3{font-size:18px}}
+.idea p{font-size:14.5px;line-height:1.6;color:var(--ink2);margin:0;max-width:540px}
+.idea .out{text-align:right;padding-top:3px}
+@media(max-width:780px){.idea .out{grid-column:2;text-align:left;padding-top:12px}}
+.idea .out b{display:block;font-size:19px;font-weight:700;letter-spacing:-.025em;color:var(--accent-lift);white-space:nowrap}
+.idea .out span{display:block;font-size:10.5px;color:var(--ink3);margin-top:3px;letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+.idea .seeit{display:inline-flex;align-items:center;gap:5px;margin-top:11px;font-size:12.5px;
+  font-weight:600;color:var(--accent-lift)}
+.idea .seeit svg{width:12px;height:12px}
+
+.band{background:var(--surf);border:1px solid var(--hair);border-radius:28px;padding:40px 44px;margin-top:44px;
+  display:flex;align-items:center;gap:36px;flex-wrap:wrap}
+@media(max-width:700px){.band{padding:28px 24px;gap:22px}}
+.band .lab{font-size:11.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.band .txt{flex:1;min-width:240px}
+.band .txt p{font-size:15.5px;line-height:1.6;color:var(--ink2);margin:0}
+.band .nums{display:flex;gap:34px}
+.band .nums div b{display:block;font-size:30px;font-weight:700;letter-spacing:-.035em;color:var(--accent-lift)}
+.band .nums div span{display:block;font-size:11px;color:var(--ink3);margin-top:2px;letter-spacing:.04em;
+  text-transform:uppercase;font-weight:600}
+
+.cta-row{display:flex;justify-content:center;margin-top:52px;align-items:center;gap:22px;flex-wrap:wrap}
+.bigbtn{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(90deg,var(--sm-blue),var(--sm-blue2));color:#fff;
+  font-size:15px;font-weight:700;letter-spacing:-.01em;padding:15px 26px;border-radius:30px;transition:.16s}
+.bigbtn:hover{filter:brightness(1.1)}
+.bigbtn svg{width:15px;height:15px}
+
+.foot{border-top:1px solid var(--hair);padding:36px 0 70px;font-size:12.5px;line-height:1.6;color:var(--ink3)}
+
+/* ============ prototype stage ============ */
+.stage{display:grid;grid-template-columns:minmax(440px,1fr) minmax(400px,470px);gap:0;
+  align-items:start;min-height:calc(100vh - 58px)}
+@media(max-width:1080px){.stage{grid-template-columns:1fr}}
+.phonecol{padding:34px 24px 46px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.panelcol{border-left:1px solid var(--hair);background:var(--panel);color:var(--panel-ink);
+  min-height:calc(100vh - 58px);position:sticky;top:58px;max-height:calc(100vh - 58px);overflow-y:auto}
+@media(max-width:1080px){.panelcol{position:static;max-height:none;border-left:none;border-top:1px solid var(--hair)}}
+
+.phone{position:relative;width:390px;height:844px;flex:none;background:#000;border:11px solid #000;
+  border-radius:46px;box-shadow:0 0 0 1.5px #3A3A3E,0 34px 80px -20px rgba(63,134,240,.28)}
+.phone-in{position:absolute;inset:0;border-radius:36px;overflow:hidden;background:var(--sm-bg)}
+.island{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:104px;height:30px;background:#000;
+  border-radius:16px;z-index:60;pointer-events:none}
+.sbar{position:absolute;top:0;left:0;right:0;height:50px;z-index:55;pointer-events:none;display:flex;
+  align-items:center;justify-content:space-between;padding:14px 28px 0 34px;font:600 15px/1 -apple-system,'Inter',sans-serif;color:#fff;transition:color .3s}
+.sbar.dk{color:#111}
+.sbar .glyphs{display:flex;gap:5px;align-items:center}
+.homebar{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:134px;height:5px;
+  border-radius:3px;background:rgba(255,255,255,.9);z-index:56;pointer-events:none;transition:background .3s}
+.homebar.dk{background:#111}
+.screenwrap{position:absolute;inset:0;overflow:hidden;background:var(--sm-bg)}
+
+/* ============ phone screens — their system, all prefixed scr-/sm- ============ */
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--sm-bg);color:var(--sm-ink);
+  font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;
+  transform:translateX(100%);transition:transform .36s cubic-bezier(.32,.72,0,1);z-index:10;will-change:transform}
+[dir=rtl] .scr{font-family:-apple-system,'Noto Sans Arabic','Inter',sans-serif}
+.scr.is-active{transform:translateX(0);z-index:20}
+.scr.is-past{transform:translateX(-24%)}
+.scr.sheet{transform:translateY(100%)}
+.scr.sheet.is-active{transform:translateY(0);z-index:30}
+.scr.nofx{transition:none}
+.scr-top{flex:none;padding:50px 16px 0;position:relative;z-index:3;min-height:50px}
+.scr-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:0 16px;scrollbar-width:none;position:relative;z-index:2}
+.scr-body::-webkit-scrollbar{display:none}
+.scr-foot{flex:none;padding:10px 14px 24px;position:relative;z-index:2}
+
+/* their phone-outline art: dark bezel + notch, fading out downward */
+.sm-hero{position:relative;margin:0 -16px;overflow:hidden}
+.sm-mock{position:absolute;left:44px;right:44px;top:22px;height:290px;border:14px solid var(--sm-mock);border-bottom:0;
+  border-radius:var(--r-media) var(--r-media) 0 0;
+  -webkit-mask-image:linear-gradient(180deg,#000 30%,transparent 100%);mask-image:linear-gradient(180deg,#000 30%,transparent 100%)}
+.sm-mock::before{content:'';position:absolute;top:-2px;left:50%;transform:translateX(-50%);width:132px;height:32px;
+  background:var(--sm-mock);border-radius:0 0 18px 18px}
+.sm-mock::after{content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);width:62px;height:6px;
+  border-radius:3px;background:#0B0B0C;box-shadow:42px 0 0 -1px #0B0B0C}
+.sm-mlab{position:absolute;left:0;right:0;top:82px;text-align:center;font-size:13.5px;font-weight:500;letter-spacing:.01em;
+  color:var(--sm-txt);text-transform:uppercase;z-index:2}
+.sm-mlab.blue{color:var(--sm-blue-lab)} .sm-mlab.red{color:var(--sm-red-lab)}
+
+.sm-gauge{position:absolute;left:50%;transform:translateX(-50%);width:var(--gs);height:var(--gs);z-index:2}
+.sm-gauge svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.sm-gnum{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.sm-gnum b{font-size:calc(var(--gs) * .27);font-weight:700;line-height:1;letter-spacing:-.02em;color:var(--sm-ink);font-variant-numeric:tabular-nums;direction:ltr}
+.sm-gnum span{font-size:calc(var(--gs) * .075);font-weight:600;color:#7E7F84;margin-top:calc(var(--gs) * .04)}
+.sm-sign{position:absolute;width:82px;height:82px;border-radius:50%;background:#fff;border:9px solid var(--sm-red);
+  display:grid;place-items:center;font:800 34px/1 -apple-system,'Inter',sans-serif;color:#111;z-index:4;
+  box-shadow:0 0 0 3px rgba(229,49,47,.35),0 0 26px 6px rgba(229,49,47,.45);letter-spacing:-.03em;direction:ltr}
+.sm-sign.sm{width:56px;height:56px;border-width:6px;font-size:22px}
+
+.sm-h{font-size:25px;line-height:1.14;font-weight:800;letter-spacing:-.005em;text-align:center;text-transform:uppercase;color:var(--sm-ink);margin:0 6px}
+.sm-s{font-size:14.5px;line-height:1.3;font-weight:400;text-align:center;text-transform:uppercase;color:var(--sm-txt);margin:10px 8px 0;letter-spacing:.005em}
+.sm-btn{display:flex;align-items:center;justify-content:center;width:100%;height:56px;border-radius:var(--r-ctl);
+  background:linear-gradient(90deg,var(--sm-blue),var(--sm-blue2));color:#fff;
+  font:600 18px/1 -apple-system,'Inter',sans-serif;letter-spacing:.01em;text-transform:uppercase;transition:filter .15s}
+[dir=rtl] .sm-btn{background:linear-gradient(270deg,var(--sm-blue),var(--sm-blue2));font-family:-apple-system,'Noto Sans Arabic',sans-serif}
+.sm-btn:hover{filter:brightness(1.06)}
+.sm-ghost{display:block;width:100%;height:38px;margin-top:4px;font:500 14px/1 -apple-system,'Inter',sans-serif;color:var(--sm-txt)}
+.sm-dots{display:flex;gap:7px;justify-content:center;align-items:center;margin-top:16px;height:8px}
+.sm-dots i{width:8px;height:8px;border-radius:4px;background:#5A5B5F;transition:.3s}
+.sm-dots i.on{width:26px;background:#fff}
+
+/* units */
+.sm-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:22px}
+.sm-opt{height:54px;border-radius:var(--r-ctl);background:var(--sm-card2);border:1.5px solid var(--sm-line);
+  font:700 16px/1 -apple-system,'Inter',sans-serif;color:var(--sm-ink);text-transform:uppercase;letter-spacing:.02em;transition:.16s}
+[dir=rtl] .sm-opt{font-family:-apple-system,'Noto Sans Arabic',sans-serif}
+.sm-opt small{display:block;font-size:10.5px;font-weight:500;color:var(--sm-txt);margin-top:4px;text-transform:none;letter-spacing:0}
+.sm-opt.on{background:linear-gradient(90deg,var(--sm-blue),var(--sm-blue2));border-color:transparent;color:#fff}
+.sm-opt.on small{color:rgba(255,255,255,.82)}
+
+/* limit */
+.sm-dial{cursor:grab;touch-action:none}
+.sm-step{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:20px;direction:ltr}
+.sm-step button{width:54px;height:54px;border-radius:50%;background:var(--sm-card2);border:1.5px solid var(--sm-line);
+  font:500 28px/1 -apple-system,'Inter',sans-serif;color:var(--sm-ink)}
+.sm-step div{min-width:120px;text-align:center;font:700 20px/1 -apple-system,'Inter',sans-serif;color:var(--sm-ink)}
+.sm-step div small{display:block;font-size:11px;font-weight:500;color:var(--sm-muted);margin-top:6px;text-transform:uppercase;letter-spacing:.04em}
+[dir=rtl] .sm-step div small{font-family:-apple-system,'Noto Sans Arabic',sans-serif}
+
+/* display */
+.sm-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:22px}
+.sm-tile{display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 6px 12px;border-radius:18px;background:var(--sm-card);
+  border:1.5px solid var(--sm-line);transition:.16s}
+.sm-tile.on{border-color:var(--sm-blue);box-shadow:0 0 0 1px var(--sm-blue),0 0 22px -6px rgba(63,134,240,.7)}
+.sm-tile .pv{position:relative;width:78px;height:132px;border-radius:16px;border:5px solid var(--sm-mock);background:#000;
+  display:grid;place-items:center;overflow:hidden}
+.sm-tile .pv .dg{font:800 30px/1 -apple-system,'Inter',sans-serif;color:#fff;text-align:center;direction:ltr}
+.sm-tile .pv .dg small{display:block;font-size:10px;font-weight:600;color:#bbb;margin-top:3px}
+.sm-tile .pv .dg.mir{transform:scaleX(-1);color:#7DB5FF}
+.sm-tile .pv .dg.mir small{color:#7DB5FF}
+.sm-tile .pv .mini{position:relative;width:70px;height:70px}
+.sm-tile b{font:700 13.5px/1 -apple-system,'Inter',sans-serif;color:var(--sm-ink);text-transform:uppercase;letter-spacing:.02em}
+[dir=rtl] .sm-tile b{font-family:-apple-system,'Noto Sans Arabic',sans-serif}
+.sm-pvbig{position:absolute;left:50%;transform:translateX(-50%);top:118px;z-index:2;text-align:center;direction:ltr}
+.sm-pvbig .dg{font:800 74px/1 -apple-system,'Inter',sans-serif;color:#fff;letter-spacing:-.02em}
+.sm-pvbig .dg small{display:block;font-size:20px;font-weight:600;color:#9a9a9f;margin-top:6px}
+.sm-pvbig .dg.mir{transform:scaleX(-1);color:#7DB5FF}
+.sm-pvbig .dg.mir small{color:#7DB5FF}
+
+/* loader */
+.sm-ls{display:flex;flex-direction:column;gap:13px;margin:22px auto 0;max-width:300px}
+.sm-l{display:flex;align-items:center;gap:12px;font-size:15px;font-weight:500;color:#55565A;transition:.35s}
+.sm-l.on{color:var(--sm-ink)}
+.sm-l .d{width:22px;height:22px;flex:none;border-radius:50%;border:2px solid #3A3B3F;display:grid;place-items:center;transition:.35s}
+.sm-l.on .d{background:var(--sm-blue);border-color:var(--sm-blue)}
+.sm-l .d svg{width:12px;height:12px;stroke:#fff;stroke-width:3.2;fill:none;opacity:0;stroke-linecap:round;stroke-linejoin:round}
+.sm-l.on .d svg{opacity:1}
+.sm-rate{margin:22px auto 0;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13.5px;color:var(--sm-txt);font-weight:500}
+.sm-rate .st{color:#F5B83D;letter-spacing:1px;font-size:14px}
+.sm-rate b{color:var(--sm-ink);font-weight:700}
+
+/* payoff */
+.sm-sum{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.sm-row{display:flex;align-items:center;justify-content:space-between;gap:10px;height:48px;padding:0 14px;border-radius:var(--r-ctl);background:var(--sm-card);border:1px solid var(--sm-line)}
+.sm-row span{font-size:14px;color:var(--sm-txt);font-weight:500}
+.sm-row b{font-size:15px;font-weight:700;color:var(--sm-ink);margin-inline-start:auto;direction:ltr}
+.sm-row button{font-size:13px;font-weight:600;color:var(--sm-blue-lab);padding:6px 0 6px 8px}
+
+/* paywall (their composition: X left, Restore right) */
+.sm-x{position:absolute;left:16px;top:50px;width:36px;height:36px;display:grid;place-items:center;color:#8E8F94;z-index:5}
+[dir=rtl] .sm-x{left:auto;right:16px}
+.sm-x svg{width:22px;height:22px}
+.sm-restore{position:absolute;right:16px;top:52px;height:32px;padding:0 14px;border-radius:16px;background:#2A2A2D;color:#E8E8EA;font:500 14px/1 -apple-system,'Inter',sans-serif;z-index:5}
+[dir=rtl] .sm-restore{right:auto;left:16px}
+.sm-proof{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;font-size:13px;color:var(--sm-txt);font-weight:500;text-transform:uppercase;letter-spacing:.02em}
+.sm-proof .st{color:#F5B83D;letter-spacing:1px;font-size:13px}
+.sm-proof b{color:var(--sm-ink);font-weight:700}
+.sm-feat{display:grid;grid-template-columns:1fr 1fr;gap:7px 10px;margin-top:14px;padding:12px 12px;border-radius:var(--r-ctl);background:var(--sm-card);border:1px solid var(--sm-line)}
+.sm-f{display:flex;align-items:center;gap:8px;font-size:13px;line-height:1.25;color:var(--sm-ink);font-weight:500}
+.sm-f i{width:18px;height:18px;flex:none;border-radius:50%;background:var(--sm-blue);display:grid;place-items:center}
+.sm-f i svg{width:10px;height:10px;stroke:#fff;stroke-width:3.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sm-legal{text-align:center;margin-top:12px;font-size:13px;color:#fff;font-weight:500}
+.sm-legal span{color:var(--sm-muted)}
+
+/* offer — trial timeline on the same product */
+.sm-ok{font-size:13px;font-weight:600;letter-spacing:.06em;color:var(--sm-blue-lab);text-align:center;text-transform:uppercase;margin-top:44px}
+.sm-tl{position:relative;margin-top:22px;padding:20px 18px 6px;border-radius:22px;background:var(--sm-card);border:1px solid var(--sm-line)}
+.sm-tn{position:relative;display:flex;gap:14px;padding-bottom:20px}
+.sm-tn:not(:last-child)::before{content:'';position:absolute;inset-inline-start:13px;top:30px;bottom:2px;width:2px;
+  background:linear-gradient(180deg,var(--sm-blue),#2A2A2D)}
+.sm-tn .ic{width:28px;height:28px;flex:none;border-radius:50%;background:var(--sm-blue);display:grid;place-items:center}
+.sm-tn .ic svg{width:14px;height:14px;stroke:#fff;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.sm-tn.last .ic{background:#2A2A2D}
+.sm-tn div b{display:block;font-size:12.5px;font-weight:700;letter-spacing:.06em;color:var(--sm-blue-lab);text-transform:uppercase}
+.sm-tn.last div b{color:var(--sm-txt)}
+.sm-tn div p{font-size:14.5px;line-height:1.4;color:var(--sm-ink);margin-top:4px;font-weight:500}
+.sm-due{display:flex;justify-content:center;margin-top:16px}
+.sm-due>span{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 14px;border-radius:16px;background:rgba(63,134,240,.14);
+  color:#8DBBFF;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.sm-due svg{width:15px;height:15px;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+/* app home (after purchase) */
+.sm-rec{display:block;margin:2px auto 0;width:150px;height:40px;border-radius:20px;background:linear-gradient(90deg,#C8262A,#E5413A);color:#fff;
+  font:600 15px/1 -apple-system,'Inter',sans-serif}
+.sm-stats{display:grid;grid-template-columns:1fr 1fr;margin-top:22px;border-top:1px solid var(--sm-line);padding-top:16px;text-align:center}
+.sm-stats small{display:block;font-size:12.5px;color:var(--sm-muted)}
+.sm-stats b{display:block;font-size:17px;font-weight:700;color:var(--sm-ink);margin-top:5px;direction:ltr}
+
+/* light mode — an approximation: their app ships dark only */
+.phone-in.light{--sm-bg:#F2F2F7;--sm-card:#FFFFFF;--sm-card2:#FFFFFF;--sm-line:#DDDDE2;--sm-mock:#D4D4D9;--sm-ink:#111214;--sm-txt:#6B6C72;--sm-muted:#8E8F94;--sm-blue-lab:#2F74DE;background:var(--sm-bg)}
+.phone-in.light .screenwrap{background:var(--sm-bg)}
+.phone-in.light .sm-mock::after{background:#B9B9BF;box-shadow:42px 0 0 -1px #B9B9BF}
+.phone-in.light .sm-gnum span{color:#8A8B90}
+.phone-in.light .sm-restore{background:#E3E3E8;color:#222}
+.phone-in.light .sm-tile .pv{background:#111}
+.phone-in.light .sm-legal{color:#111}
+.phone-in.light .sm-dots i{background:#C4C4CA}
+.phone-in.light .sm-dots i.on{background:#111}
+.phone-in.light .sm-l{color:#B1B2B7}
+.phone-in.light .sm-l .d{border-color:#C9CACF}
+.phone-in.light .sm-l.on{color:var(--sm-ink)}
+.phone-in.light .sm-due span{color:#2F74DE}
+.phone-in.light .sm-tn.last .ic,.phone-in.light .sm-tn:not(:last-child)::before{background:#D4D4D9}
+.phone-in.light .sm-tn:not(:last-child)::before{background:linear-gradient(180deg,var(--sm-blue),#D4D4D9)}
+
+/* prototype toolbar, walkthrough, QR */
+.tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:520px}
+.seg{display:inline-flex;align-items:center;background:#141416;border:1px solid #2A2A2E;border-radius:20px;padding:3px;gap:2px}
+.seg button{padding:6px 11px;border-radius:16px;font:600 12px/1 'Inter',sans-serif;color:var(--ink2);transition:.14s}
+.seg button.on{background:var(--ink);color:#0A0A0B}
+.demo-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:20px;background:var(--accent);color:#fff;
+  font:700 12px/1 'Inter',sans-serif}
+.demo-cap{width:390px;max-width:calc(100vw - 24px);background:#141416;border:1px solid var(--hair2);border-radius:16px;padding:14px 14px 12px;
+  display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.4)}
+.demo-cap .bar{position:absolute;left:0;top:0;right:0;height:3px;background:#26262A}
+.demo-cap .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s linear}
+.demo-cap p{flex:1;font-size:13.5px;line-height:1.45;color:var(--ink);margin:0;font-weight:500}
+.demo-cap button{font:700 12px/1 'Inter',sans-serif;color:var(--ink2);padding:7px 10px;border-radius:12px;border:1px solid #2E2E33;flex:none}
+.finger{position:absolute;z-index:90;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(255,255,255,.22);
+  border:2px solid rgba(255,255,255,.95);box-shadow:0 4px 14px rgba(0,0,0,.45);pointer-events:none;opacity:0;left:50%;top:60%;
+  transition:left .32s cubic-bezier(.4,0,.2,1),top .32s cubic-bezier(.4,0,.2,1),opacity .2s,transform .15s}
+.finger.show{opacity:1}
+.finger.press{transform:scale(.78);background:rgba(255,255,255,.4)}
+.qr{display:flex;align-items:center;gap:12px;background:var(--surf);border:1px solid var(--hair);border-radius:16px;padding:10px 16px 10px 10px;text-align:left}
+.qr img{width:123px;height:123px;display:block;image-rendering:pixelated;border-radius:6px}
+.qr span{font-size:12.5px;line-height:1.45;color:var(--ink2)}
+.qr b{display:block;color:var(--ink);font-size:13.5px}
+@media(max-width:1080px){.qr{display:none}}
+
+#view-proto .tools{order:0} #view-proto .demo-cap{order:1} #view-proto .phone{order:2} #view-proto .chips{order:3}
+#view-proto .chiphint{order:4} #view-proto .qr{order:5}
+.cta-row .qr{order:2}
+/* on a phone: the prototype is the screen */
+@media(max-width:500px){
+  #view-proto .phonecol{padding:0 0 28px;gap:14px}
+  #view-proto .phone{width:100vw;height:calc(100svh - 58px);min-height:640px;border:0;border-radius:0;box-shadow:none;order:1}
+  #view-proto .phone-in{border-radius:0}
+  #view-proto .island,#view-proto .sbar,#view-proto .homebar{display:none}
+  #view-proto .scr-top{padding-top:8px;min-height:8px}
+  #view-proto .scr-foot{padding-bottom:16px}
+  #view-proto .sm-x{top:8px} #view-proto .sm-restore{top:10px}
+  #view-proto .scr--pay .scr-top{padding-top:44px}
+  #view-proto .tools{order:3;padding:0 12px}
+  #view-proto .demo-cap{position:fixed;left:12px;right:12px;bottom:12px;width:auto;max-width:none;z-index:95}
+  #view-proto .chips{order:4;padding:0 12px}
+  #view-proto .chiphint{order:5}
+}
+
+.herobtns{display:flex;justify-content:center;margin-top:30px}
+.ghostbtn{display:inline-flex;align-items:center;gap:10px;background:#141416;border:1px solid var(--hair2);color:var(--ink);font-size:14px;
+  font-weight:700;padding:9px 20px 9px 9px;border-radius:30px;transition:.16s}
+.ghostbtn:hover{border-color:rgba(255,255,255,.3)}
+.ghostbtn .pl{width:30px;height:30px;border-radius:50%;background:var(--accent);display:grid;place-items:center}
+.ghostbtn .pl svg{width:12px;height:12px;fill:#fff;margin-left:2px}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:470px;margin:0 auto}
+.chip{padding:7px 13px;border-radius:20px;border:1px solid #2A2A2E;background:#141416;
+  font:600 12px/1 'Inter',sans-serif;color:var(--ink2);transition:.14s}
+.chip:hover{color:var(--ink);border-color:#45454B}
+.chip.offer{border-style:dashed;border-color:var(--accent);color:var(--accent-lift)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;border-style:solid}
+.chiphint{text-align:center;font-size:11px;color:var(--ink3);margin:0;max-width:430px}
+
+/* ============ the short panel ============ */
+.pn{padding:30px 30px 60px}
+.pn-n{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink)}
+.pn-n.ctx{color:var(--panel-muted)}
+.pn-t{font-size:23px;line-height:1.18;font-weight:700;letter-spacing:-.028em;margin:8px 0 0;color:var(--panel-ink)}
+.pn-hyp{font-size:15px;line-height:1.62;color:#2E3036;margin:16px 0 0}
+.pn-hyp b{font-weight:700;color:var(--panel-ink)}
+.pn-out{margin-top:22px;border-top:1px solid var(--panel-line);padding-top:18px}
+.pn-out .lab{font-size:10px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--panel-muted)}
+.pn-out .v{font-size:31px;font-weight:700;letter-spacing:-.035em;color:var(--accent-ink);margin-top:7px;line-height:1}
+.pn-kept{margin-top:22px;font-size:12.5px;line-height:1.55;color:var(--panel-muted)}
+.pn-kept b{color:#2E3036;font-weight:700}
+.pn-foot{font-size:11.5px;line-height:1.55;color:var(--panel-muted);border-top:1px solid var(--panel-line);
+  padding-top:14px;margin-top:26px}
+.pn-sep{height:1px;background:var(--panel-line);margin:26px 0}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-in">
+    <div class="nav-brand">
+      <img src="img/icon.png" alt="Speedometer GPS">
+      <b>Growth Audit</b><span>· Speedometer GPS</span>
+    </div>
+    <div class="nav-links">
+      <button class="on" data-view="over">Overview</button>
+      <button data-view="proto">Prototype</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= OVERVIEW ======================= -->
+<div class="view on" id="view-over">
+
+<div class="hero">
+  <div class="wrap">
+    <!-- month + year = the day you build --><div class="eyebrow">Growth Audit · October 2026</div>
+    <h1>Speedometer GPS</h1>
+    <p class="lede">Five ideas to unlock more revenue from the traffic you already have.</p>
+    <div class="meta">Prepared by <b>Adapty</b> · based on your live iOS flow and your App Store listing</div>
+    <div class="herobtns"><button class="ghostbtn" data-demo><span class="pl"><svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></svg></span>Watch the 30-second walkthrough</button></div>
+    <div class="stats">
+      <div class="stat"><b>30,000+</b><span>apps run subscriptions<br>on Adapty</span></div>
+      <div class="stat"><b>5</b><span>ideas, each rebuilt<br>as a working screen</span></div>
+      <div class="stat"><b>0</b><span>design changes<br>to your art direction</span></div>
+    </div>
+
+    <div class="fb">
+      <div class="fb-k">Built in Adapty Flow Builder</div>
+      <div class="fb-i">
+        <span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <p><b>Millions of dollars</b> in subscription revenue pass through Flow Builder every month.</p>
+      </div>
+      <div class="fb-i">
+        <span class="tick"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <p><b>Nearly 500 apps</b> actively build their paywalls and onboarding in it — plenty of them past $100K MRR.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="wrap">
+    <div class="sec-k">What this is</div>
+    <h2>We opened Speedometer GPS the way a new user does, then rebuilt the parts we think are leaving money on the table.</h2>
+    <p class="body">Adapty powers subscriptions for <b>30,000+ apps</b>, so we get to see what actually moves conversion and ARPU across the market rather than inside one app. We pointed that at Speedometer GPS: installed it, went through the first screens to the paywall, read your App Store listing and your screenshots, and looked for gaps between what you already have and what you currently show people.</p>
+    <p class="body">What follows is five ideas — not fifteen. Each one is a hypothesis you can A/B test, and each one is built into a clickable prototype so you can see it rather than imagine it. <b>The prototype uses your design, not ours.</b></p>
+
+    <div class="notes">
+      <div class="note">
+        <h4>We did not redesign your app</h4>
+        <p>Every screen in the prototype is yours — the phone outline, the glowing dial, your red speed-limit sign, the uppercase headlines and the blue button. Only the order changed, plus a few things you already have but do not show at the right moment. This is not a design pitch.</p>
+      </div>
+      <div class="note">
+        <h4>You may have tested some of this</h4>
+        <p>We are working from the outside, so we cannot see your experiment history. If one of these is something you have already run, tell us — we will go deeper on the rest rather than repeat it.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="rule"></div>
+
+<div class="sec">
+  <div class="wrap">
+    <div class="sec-k">The five ideas</div>
+    <h2>Ranked by what we would test first.</h2>
+    <p class="body">Each one links straight to the screen in the prototype.</p>
+
+    <div class="ideas">
+      <button class="idea" data-jump="offer">
+        <span class="no">01</span>
+        <span>
+          <h3>Give the trial a second screen, laid out day by day</h3>
+          <p>Your paywall gets one chance, and the trial is explained in one small line under the headline: 3-day free, then ₪29.90 per week. One of your App Store reviews calls it a scam because the person did not see how it worked. A second screen on close, same Speedometer Pro trial, shows what happens today and on day 3.</p>
+          <span class="seeit">See the screen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </span>
+        <span class="out"><b>ARPU +10–15%</b><span>second chance</span></span>
+      </button>
+
+      <button class="idea" data-jump="limit">
+        <span class="no">02</span>
+        <span>
+          <h3>Turn your speed-limit slide into the real setting</h3>
+          <p>Today three slides describe the app, then the price appears. Let people pick mph, km/h or knots, set their limit on your own red dial, and choose gauge, digital or mirror view. Three taps, and the app really uses every one of them.</p>
+          <span class="seeit">See the screen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </span>
+        <span class="out"><b>CR +10–15%</b><span>to trial start</span></span>
+      </button>
+
+      <button class="idea" data-jump="payoff">
+        <span class="no">03</span>
+        <span>
+          <h3>Show their speedometer before the price</h3>
+          <p>After those taps, show the speedometer they just set up: their units, their view, and the dial turning red the moment it passes their limit. Nothing is invented. It is the app doing what it already does, one screen before you ask for money.</p>
+          <span class="seeit">See the screen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </span>
+        <span class="out"><b>CR +10–20%</b><span>to trial start</span></span>
+      </button>
+
+      <button class="idea" data-jump="paywall">
+        <span class="no">04</span>
+        <span>
+          <h3>Make the paywall headline their own setting</h3>
+          <p>“Activate speedometer now” reads the same for everyone. After setup it can say “Your 70 mph alert is ready”, with their limit on your red sign next to the dial.</p>
+          <span class="seeit">See the screen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </span>
+        <span class="out"><b>CR +15–20%</b><span>to trial start</span></span>
+      </button>
+
+      <button class="idea" data-jump="paywall">
+        <span class="no">05</span>
+        <span>
+          <h3>Put your 4.6 and what Pro unlocks on the paywall</h3>
+          <p>You have 4.6 stars from 8.9K ratings in the US App Store, and it appears nowhere in the flow. The paywall also never says what Pro adds: speed alerts, mirror mode, trip history and no ads. Both fit above Start Free Trial.</p>
+          <span class="seeit">See the screen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </span>
+        <span class="out"><b>CR +10–15%</b><span>to trial start</span></span>
+      </button>
+    </div>
+
+    <div class="band">
+      <div class="txt">
+        <div class="lab">Potential outcome</div>
+        <p>Run together, these five change what happens before the price, what the paywall says, and what someone sees after they say no. Potential result: revenue up to +30%.</p>
+      </div>
+      <div class="nums">
+        <div><b>+25%</b><span>CR to purchase</span></div>
+        <div><b>+30%</b><span>ARPU</span></div>
+      </div>
+    </div>
+
+    <div class="cta-row">
+      <div class="qr"><img src="img/qr.svg" alt="QR code for the prototype"><span><b>Or open it on your phone</b>Scan to try the flow in your hand.</span></div>
+      <button class="bigbtn" data-view="proto">Open the prototype
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <div class="wrap">
+    Impact ranges are Adapty's expected effect from teardowns and A/B tests across subscription apps — not measured lift for Speedometer GPS. Every price, rating and feature line here and in the prototype comes from your own in-app screens, App Store listing and App Store screenshots. The trial price is the ₪29.90 shown on your own paywall; the rating is your US App Store figure.
+  </div>
+</div>
+</div><!-- /view-over -->
+
+<!-- ======================= PROTOTYPE ======================= -->
+<div class="view" id="view-proto">
+<div class="stage">
+  <div class="phonecol">
+    <div class="tools" id="tools">
+      <div class="seg" id="segLang"><button data-lang="en" class="on">EN</button><button data-lang="ar">AR</button><button data-lang="es">ES</button></div>
+      <div class="seg" id="segTheme"><button data-theme="light">Light</button><button data-theme="dark" class="on">Dark</button></div>
+      <button class="demo-btn" id="demoBtn"><svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><path d="M7 4.5v15l12-7.5z"/></svg>30-sec walkthrough</button>
+    </div>
+    <div class="phone">
+      <div class="phone-in" id="phoneIn">
+        <div class="island"></div>
+        <div class="sbar" id="sbar">
+          <span>12:28</span>
+          <span class="glyphs">
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7.5" width="3" height="3.5" rx="1"/><rect x="4.5" y="5.5" width="3" height="5.5" rx="1"/><rect x="9" y="3" width="3" height="8" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+            <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 10.5 5.6 7.9a3.4 3.4 0 0 1 4.8 0L8 10.5Zm0-5.6a6.4 6.4 0 0 0-4.5 1.9L1.7 4.9a9 9 0 0 1 12.6 0l-1.8 1.9A6.4 6.4 0 0 0 8 4.9Z"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".6" y=".6" width="20" height="10.8" rx="3" stroke="currentColor" stroke-opacity=".5"/><rect x="2.2" y="2.2" width="16.5" height="7.6" rx="1.8" fill="currentColor"/><path d="M22.3 4.1v3.8a2 2 0 0 0 0-3.8Z" fill="currentColor" fill-opacity=".5"/></svg>
+          </span>
+        </div>
+        <div class="homebar" id="homebar"></div>
+        <div class="finger" id="finger"></div>
+        <div class="screenwrap" id="sw">
+
+<!-- WELCOME -->
+<section class="scr" data-id="welcome">
+  <div class="scr-top"></div>
+  <div class="scr-body">
+    <div class="sm-hero" style="height:470px">
+      <div class="sm-mock"></div>
+      <div class="sm-mlab" data-t="wel.lab"></div>
+      <div class="sm-gauge" style="--gs:318px;top:132px" id="gWel"></div>
+    </div>
+    <h2 class="sm-h" data-th="wel.h"></h2>
+    <p class="sm-s" data-t="wel.s"></p>
+  </div>
+  <div class="scr-foot">
+    <button class="sm-btn" data-go="units" data-t="cont"></button>
+    <div class="sm-dots"><i class="on"></i><i></i><i></i><i></i></div>
+  </div>
+</section>
+
+<!-- UNITS -->
+<section class="scr" data-id="units">
+  <div class="scr-top"></div>
+  <div class="scr-body">
+    <div class="sm-hero" style="height:396px">
+      <div class="sm-mock"></div>
+      <div class="sm-mlab blue" data-t="un.lab"></div>
+      <div class="sm-gauge" style="--gs:270px;top:122px" id="gUnits"></div>
+    </div>
+    <h2 class="sm-h" data-th="un.h"></h2>
+    <p class="sm-s" data-t="un.s"></p>
+    <div class="sm-seg" id="unitSeg"></div>
+  </div>
+  <div class="scr-foot">
+    <button class="sm-btn" data-go="limit" data-t="cont"></button>
+    <div class="sm-dots"><i></i><i class="on"></i><i></i><i></i></div>
+  </div>
+</section>
+
+<!-- SPEED LIMIT -->
+<section class="scr" data-id="limit">
+  <div class="scr-top"></div>
+  <div class="scr-body">
+    <div class="sm-hero" style="height:396px">
+      <div class="sm-mock"></div>
+      <div class="sm-mlab red" data-t="li.lab"></div>
+      <div class="sm-sign" id="limSign" style="left:24px;top:54px">70</div>
+      <div class="sm-gauge sm-dial" style="--gs:270px;top:122px" id="gLimit"></div>
+    </div>
+    <h2 class="sm-h" data-th="li.h"></h2>
+    <p class="sm-s" data-t="li.s"></p>
+    <div class="sm-step">
+      <button id="limMinus" aria-label="Lower">−</button>
+      <div><span id="limVal">70 mph</span><small data-t="li.drag"></small></div>
+      <button id="limPlus" aria-label="Higher">+</button>
+    </div>
+  </div>
+  <div class="scr-foot">
+    <button class="sm-btn" data-go="display" data-t="cont"></button>
+    <div class="sm-dots"><i></i><i></i><i class="on"></i><i></i></div>
+  </div>
+</section>
+
+<!-- DISPLAY -->
+<section class="scr" data-id="display">
+  <div class="scr-top"></div>
+  <div class="scr-body">
+    <div class="sm-hero" style="height:318px">
+      <div class="sm-mock"></div>
+      <div class="sm-mlab blue" data-t="di.lab"></div>
+      <div class="sm-gauge" style="--gs:196px;top:118px" id="gDisp"></div>
+      <div class="sm-pvbig" id="pvBig"></div>
+    </div>
+    <h2 class="sm-h" data-th="di.h"></h2>
+    <p class="sm-s" data-t="di.s"></p>
+    <div class="sm-tiles" id="modeTiles"></div>
+  </div>
+  <div class="scr-foot">
+    <button class="sm-btn" data-go="loader" data-t="di.cta"></button>
+    <div class="sm-dots"><i></i><i></i><i></i><i class="on"></i></div>
+  </div>
+</section>
+
+<!-- LOADER -->
+<section class="scr" data-id="loader">
+  <div class="scr-top"></div>
+  <div class="scr-body">
+    <div class="sm-hero" style="height:380px">
+      <div class="sm-mock"></div>
+      <div class="sm-mlab blue" data-t="un.lab"></div>
+      <div class="sm-gauge" style="--gs:270px;top:116px" id="gLoad"></div>
+    </div>
+    <h2 class="sm-h" data-t="ld.h"></h2>
+    <div class="sm-ls" id="loadSteps">
+      <div class="sm-l"><span class="d"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><span class="t"></span></div>
+      <div class="sm-l"><span class="d"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><span class="t"></span></div>
+      <div class="sm-l"><span class="d"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><span class="t"></span></div>
+      <div class="sm-l"><span class="d"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><span class="t"></span></div>
+    </div>
+    <div class="sm-rate"><span class="st">★★★★★</span><span data-th="ld.rate"></span></div>
+  </div>
+  <div class="scr-foot"></div>
+</section>
+
+<!-- PAYOFF -->
+<section class="scr" data-id="payoff">
+  <div class="scr-top"></div>
+  <div class="scr-body">
+    <div class="sm-hero" style="height:352px">
+      <div class="sm-mock"></div>
+      <div class="sm-mlab" id="poLab"></div>
+      <div class="sm-sign sm" id="poSign" style="left:30px;top:62px">70</div>
+      <div class="sm-gauge" style="--gs:244px;top:112px" id="gPay"></div>
+      <div class="sm-pvbig" id="pvPay" style="top:140px"></div>
+    </div>
+    <h2 class="sm-h" data-th="po.h"></h2>
+    <p class="sm-s" id="poSub"></p>
+    <div class="sm-sum">
+      <div class="sm-row"><span data-t="po.units"></span><b id="poUnit"></b><button data-goto="units" data-t="po.chg"></button></div>
+      <div class="sm-row"><span data-t="po.alert"></span><b id="poAlert"></b><button data-goto="limit" data-t="po.chg"></button></div>
+      <div class="sm-row"><span data-t="po.view"></span><b id="poView"></b><button data-goto="display" data-t="po.chg"></button></div>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+  <div class="scr-foot"><button class="sm-btn" data-go="paywall" data-t="cont"></button></div>
+</section>
+
+<!-- PAYWALL -->
+<section class="scr scr--pay" data-id="paywall">
+  <button class="sm-x" id="payClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  <button class="sm-restore" data-t="pw.rest"></button>
+  <div class="scr-top"></div>
+  <div class="scr-body">
+    <div class="sm-hero" style="height:364px">
+      <div class="sm-mock" style="top:34px"></div>
+      <div class="sm-mlab blue" style="top:94px" data-t="un.lab"></div>
+      <div class="sm-sign sm" id="pwSign" style="left:34px;top:76px">70</div>
+      <div class="sm-gauge" style="--gs:232px;top:124px" id="gPw"></div>
+    </div>
+    <h2 class="sm-h" id="payH"></h2>
+    <p class="sm-s" style="color:var(--sm-ink);margin-top:10px"><span data-t="pw.s1"></span><br><span data-t="pw.s2"></span></p>
+    <div class="sm-proof"><span class="st">★★★★★</span><span data-th="pw.rate"></span></div>
+    <div class="sm-feat" id="featList"></div>
+    <div style="height:4px"></div>
+  </div>
+  <div class="scr-foot">
+    <button class="sm-btn" id="payCta" data-t="pw.cta"></button>
+    <p class="sm-legal"><a data-t="lg.priv"></a> <span data-t="lg.and"></span> <a data-t="lg.terms"></a></p>
+  </div>
+</section>
+
+<!-- OFFER ON CLOSE -->
+<section class="scr scr--offer sheet" data-id="offer">
+  <button class="sm-x" id="offClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  <div class="scr-top"></div>
+  <div class="scr-body">
+    <p class="sm-ok" data-t="of.k"></p>
+    <h2 class="sm-h" style="margin-top:12px;font-size:28px" data-th="of.h"></h2>
+    <div class="sm-tl">
+      <div class="sm-tn"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="4"/></svg></span><div><b data-t="of.t1k"></b><p id="ofT1"></p></div></div>
+      <div class="sm-tn"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 18c3-8 6-11 8-11s3 4 8 11"/><circle cx="12" cy="7" r="1.5"/></svg></span><div><b data-t="of.t2k"></b><p data-t="of.t2"></p></div></div>
+      <div class="sm-tn last"><span class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></span><div><b data-t="of.t3k"></b><p data-t="of.t3"></p></div></div>
+    </div>
+    <div class="sm-due"><span><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span data-t="of.due"></span></span></div>
+    <div style="height:8px"></div>
+  </div>
+  <div class="scr-foot">
+    <button class="sm-btn" id="offerCta" data-t="of.cta"></button>
+    <button class="sm-ghost" id="offNo" data-t="of.no"></button>
+  </div>
+</section>
+
+<!-- APP HOME (after purchase) -->
+<section class="scr" data-id="app">
+  <div class="scr-top"></div>
+  <div class="scr-body">
+    <div class="sm-hero" style="height:420px">
+      <div class="sm-sign sm" id="apSign" style="left:24px;top:26px">70</div>
+      <div class="sm-gauge" style="--gs:316px;top:70px" id="gApp"></div>
+    </div>
+    <button class="sm-rec" data-t="ap.rec"></button>
+    <div class="sm-stats"><div><small data-t="ap.avg"></small><b id="apAvg"></b></div><div><small data-t="ap.time"></small><b>00:00:00</b></div></div>
+  </div>
+  <div class="scr-foot"></div>
+</section>
+
+        </div>
+      </div>
+    </div>
+    <div class="demo-cap hidden" id="demoCap"><div class="bar"><i id="demoProg"></i></div><p id="demoTxt"></p><button id="demoStop">Stop</button></div>
+    <div class="chips" id="chips"></div>
+    <p class="chiphint">Jump to any screen — answers already filled in.</p>
+    <div class="qr"><img src="img/qr.svg" alt="QR code for this prototype"><span><b>Open it on your phone</b>Scan to try the flow in your hand.</span></div>
+  </div>
+  <div class="panelcol"><div class="pn" id="panel"></div></div>
+</div>
+</div><!-- /view-proto -->
+
+<script>
+/* ================= copy, per language (phone screens only) ================= */
+var LANGS = ['en','ar','es'];
+var T = {
+ 'cont':    ['Continue','متابعة','Continuar'],
+ 'wel.lab': ['Simple Speedometer','عداد سرعة بسيط','Velocímetro simple'],
+ 'wel.h':   ['Welcome to<br>Speedometer','مرحبًا بك في<br>عداد السرعة','Bienvenido a<br>Speedometer'],
+ 'wel.s':   ['Reliable and accurate speed tracking wherever you go','تتبّع سرعة دقيق وموثوق أينما ذهبت','Medición de velocidad fiable y precisa allá donde vayas'],
+ 'un.lab':  ['Speedometer','عداد السرعة','Velocímetro'],
+ 'un.h':    ['How do you<br>measure speed?','بأي وحدة<br>تقيس السرعة؟','¿Cómo mides<br>la velocidad?'],
+ 'un.s':    ['Switch any time in settings','يمكنك تغييرها في أي وقت من الإعدادات','Puedes cambiarlo cuando quieras en Ajustes'],
+ 'li.lab':  ['Speed limit','حد السرعة','Límite de velocidad'],
+ 'li.h':    ['Set your<br>speed limit','حدّد<br>حد السرعة','Fija tu<br>límite de velocidad'],
+ 'li.s':    ['Get an instant alert the moment you go over it','تنبيه فوري لحظة تجاوزه','Recibe un aviso al instante si lo superas'],
+ 'li.drag': ['Drag the dial or tap − / +','اسحب العداد أو اضغط − / +','Arrastra el dial o pulsa − / +'],
+ 'di.lab':  ['Display','العرض','Pantalla'],
+ 'di.h':    ['Pick your view','اختر طريقة العرض','Elige tu vista'],
+ 'di.s':    ['Mirror mode reflects your speed onto the windshield at night','وضع المرآة يعكس سرعتك على الزجاج الأمامي ليلًا','El modo espejo refleja tu velocidad en el parabrisas de noche'],
+ 'di.cta':  ['Set up my speedometer','جهّز عداد سرعتي','Configurar mi velocímetro'],
+ 'ld.h':    ['Setting up your speedometer','جارٍ تجهيز عداد سرعتك','Configurando tu velocímetro'],
+ 'ld.u':    ['Showing speed in {u}','عرض السرعة بـ {u}','Velocidad en {u}'],
+ 'ld.l':    ['Alert above {v}','تنبيه فوق {v}','Aviso por encima de {v}'],
+ 'ld.m':    ['{m} view on','تفعيل عرض {m}','Vista {m} activada'],
+ 'ld.t':    ['Every trip saved to your history','حفظ كل رحلة في السجل','Cada viaje guardado en tu historial'],
+ 'ld.rate': ['<b>4.6</b> · 8.9K ratings on the App Store','<b>4.6</b> · 8.9 ألف تقييم على App Store','<b>4.6</b> · 8,9 mil valoraciones en App Store'],
+ 'po.h':    ['Your speedometer<br>is ready','عداد سرعتك<br>جاهز','Tu velocímetro<br>está listo'],
+ 'po.s':    ['Watch it turn red above {v}','شاهده يتحوّل إلى الأحمر فوق {v}','Mira cómo se pone en rojo por encima de {v}'],
+ 'po.units':['Units','الوحدة','Unidades'],
+ 'po.alert':['Alert above','تنبيه فوق','Aviso por encima de'],
+ 'po.view': ['View','العرض','Vista'],
+ 'po.chg':  ['Change','تغيير','Cambiar'],
+ 'pw.h':    ['Your {v} alert<br>is ready','تنبيه {v}<br>جاهز','Tu aviso de {v}<br>está listo'],
+ 'pw.s1':   ['3-day free, then ₪29.90 per week','3 أيام مجانًا، ثم ₪29.90 أسبوعيًا','3 días gratis, luego ₪29.90/semana'],
+ 'pw.s2':   ['Auto-renewable. Cancel anytime.','يتجدد تلقائيًا. ألغِ في أي وقت.','Renovación automática. Cancela cuando quieras.'],
+ 'pw.rate': ['<b>4.6</b> · 8.9K ratings','<b>4.6</b> · 8.9 ألف تقييم','<b>4.6</b> · 8,9 mil valoraciones'],
+ 'pw.f1':   ['Speed limit alerts','تنبيهات حد السرعة','Avisos de límite'],
+ 'pw.f2':   ['Mirror (HUD) mode','وضع المرآة (HUD)','Modo espejo (HUD)'],
+ 'pw.f3':   ['Trip history &amp; stats','سجل الرحلات والإحصاءات','Historial y estadísticas'],
+ 'pw.f4':   ['No ads','بدون إعلانات','Sin anuncios'],
+ 'pw.cta':  ['Start free trial','ابدأ التجربة المجانية','Empezar prueba gratis'],
+ 'pw.rest': ['Restore','استعادة','Restaurar'],
+ 'lg.priv': ['Privacy Policy','سياسة الخصوصية','Privacidad'],
+ 'lg.and':  ['and','و','y'],
+ 'lg.terms':['Terms of Use','شروط الاستخدام','Términos de uso'],
+ 'of.k':    ['Speedometer Pro','Speedometer Pro','Speedometer Pro'],
+ 'of.h':    ['Try everything free<br>for 3 days','جرّب كل الميزات<br>مجانًا لمدة 3 أيام','Pruébalo todo gratis<br>durante 3 días'],
+ 'of.t1k':  ['Today','اليوم','Hoy'],
+ 'of.t1':   ['Your {v} alert, {m} view and trip history unlock. No ads.','يُفعَّل تنبيه {v} وعرض {m} وسجل الرحلات. بدون إعلانات.','Se activan tu aviso de {v}, la vista {m} y el historial. Sin anuncios.'],
+ 'of.t2k':  ['Days 1–3','الأيام 1–3','Días 1–3'],
+ 'of.t2':   ['Drive with it. Every trip is saved with its speed and route.','استخدمه أثناء القيادة. تُحفظ كل رحلة بسرعتها ومسارها.','Úsalo al conducir. Cada viaje se guarda con su velocidad y ruta.'],
+ 'of.t3k':  ['Day 3','اليوم 3','Día 3'],
+ 'of.t3':   ['₪29.90 a week begins. Cancel in Settings before then and you pay nothing.','يبدأ اشتراك ₪29.90 أسبوعيًا. ألغِ من الإعدادات قبلها ولن تدفع شيئًا.','Empiezan los ₪29.90 por semana. Cancela antes en Ajustes y no pagas nada.'],
+ 'of.due':  ['No payment due today','لا دفع اليوم','Hoy no pagas nada'],
+ 'of.cta':  ['Start my 3 free days','ابدأ أيامي المجانية الثلاثة','Empezar mis 3 días gratis'],
+ 'of.no':   ['Not now','ليس الآن','Ahora no'],
+ 'ap.rec':  ['Record','تسجيل','Grabar'],
+ 'ap.avg':  ['Avg. Speed','متوسط السرعة','Vel. media'],
+ 'ap.time': ['Total Time','الوقت الكلي','Tiempo total']
+};
+var UNITS = {
+  mph:{sh:['mph','ميل/س','mph'], full:['Miles','ميل','Millas'], min:15,max:100,step:5, def:70, gmax:120, f:1},
+  kmh:{sh:['km/h','كم/س','km/h'], full:['Kilometres','كيلومتر','Kilómetros'], min:20,max:160,step:10,def:110,gmax:200, f:1.609344},
+  kn: {sh:['kn','عقدة','kn'], full:['Knots','عقدة','Nudos'], min:5,max:60,step:5, def:30, gmax:100, f:0.868976}
+};
+var UORDER=['mph','kmh','kn'];
+var MODES = { gauge:['Gauge','عدّاد','Dial'], digital:['Digital','رقمي','Digital'], mirror:['Mirror','مرآة','Espejo'] };
+var MORDER=['gauge','digital','mirror'];
+
+/* ================= state ================= */
+var S0 = {lang:'en', theme:'dark'};
+function defaults(){ return { lang:S0.lang, theme:S0.theme, unit:'mph', limit:70, mode:'gauge' }; }
+var S = defaults();
+function L(){ return LANGS.indexOf(S.lang); }
+function t(k,v){ var s=(T[k]||[k])[L()]; if(v) Object.keys(v).forEach(function(x){ s=s.split('{'+x+'}').join(v[x]); }); return s; }
+function U(){ return UNITS[S.unit]; }
+function ush(){ return U().sh[L()]; }
+function lim(){ return S.limit+' '+ush(); }
+function conv(mph,unit){ return Math.round(mph*UNITS[unit].f); }
+function clampLim(v){ var u=U(); return Math.max(u.min,Math.min(u.max,Math.round(v/u.step)*u.step)); }
+
+/* ================= their dial, drawn as vector so it stays sharp ================= */
+var A0=125, SW=290;
+function pol(r,a){ var d=a*Math.PI/180; return [160+r*Math.cos(d),160+r*Math.sin(d)]; }
+function arc(r,a0,a1){ var p=pol(r,a0),q=pol(r,a1); return 'M'+p[0].toFixed(2)+' '+p[1].toFixed(2)+'A'+r+' '+r+' 0 '+((a1-a0)>180?1:0)+' 1 '+q[0].toFixed(2)+' '+q[1].toFixed(2); }
+var COL={ grey:['#B9BABE','#8E8F94'], blue:['#3F86F0','#4F9BFF'], red:['#E5312F','#FF4A43'] };
+function gauge(id, v, unit, tone, gmax){
+  var el=document.getElementById(id); if(!el) return;
+  var light=S.theme==='light', c=COL[tone], frac=Math.max(0,Math.min(1,v/(gmax||UNITS[unit].gmax))), a1=A0+SW*Math.max(.004,frac);
+  var gid=id+'g', fid=id+'f', h='<svg viewBox="0 0 320 320"><defs>'
+   +'<linearGradient id="'+gid+'" gradientUnits="userSpaceOnUse" x1="70" y1="290" x2="160" y2="10"><stop offset="0" stop-color="'+c[0]+'" stop-opacity="0"/><stop offset=".55" stop-color="'+c[0]+'" stop-opacity=".85"/><stop offset="1" stop-color="'+c[1]+'"/></linearGradient>'
+   +'<filter id="'+fid+'" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter>'
+   +'<radialGradient id="'+id+'d"><stop offset="0" stop-color="'+(light?'#FFFFFF':'#16171A')+'"/><stop offset="1" stop-color="'+(light?'#F4F4F7':'#0B0B0D')+'"/></radialGradient></defs>'
+   +'<path d="'+arc(146,A0,A0+SW)+'" fill="none" stroke="'+(light?'#E2E2E7':'#1C1C1F')+'" stroke-width="22"/>'
+   +'<path d="'+arc(146,A0,a1)+'" fill="none" stroke="url(#'+gid+')" stroke-width="22"/>';
+  var e1=pol(134,a1), e2=pol(158,a1);
+  h+='<line x1="'+e1[0]+'" y1="'+e1[1]+'" x2="'+e2[0]+'" y2="'+e2[1]+'" stroke="'+(light?'#111':'#fff')+'" stroke-width="3.2" stroke-linecap="round"/>';
+  for(var r=110;r<=128;r+=4.5) h+='<circle cx="160" cy="160" r="'+r+'" fill="none" stroke="'+c[0]+'" stroke-opacity="'+(tone==='grey'?.16:.3)+'" stroke-width="1.3"/>';
+  h+='<circle cx="160" cy="160" r="104" fill="none" stroke="'+c[1]+'" stroke-width="6" filter="url(#'+fid+')" opacity=".9"/>'
+   +'<circle cx="160" cy="160" r="104" fill="url(#'+id+'d)" stroke="'+c[1]+'" stroke-width="2.6"/></svg>'
+   +'<div class="sm-gnum"><b>'+Math.round(v)+'</b><span>'+UNITS[unit].sh[L()]+'</span></div>';
+  el.innerHTML=h;
+}
+function digits(v,unit,mir,red){ return '<div class="dg'+(mir?' mir':'')+'"'+(red?' style="color:#FF4A43"':'')+'>'+Math.round(v)+'<small'+(red?' style="color:#FF4A43"':'')+'>'+UNITS[unit].sh[L()]+'</small></div>'; }
+
+/* ================= builders (re-run on language change) ================= */
+function buildUnits(){ var g=document.getElementById('unitSeg'); g.innerHTML='';
+  UORDER.forEach(function(k){ var b=document.createElement('button'); b.className='sm-opt'; b.dataset.v=k;
+    b.innerHTML=UNITS[k].sh[L()]+'<small>'+UNITS[k].full[L()]+'</small>';
+    b.addEventListener('click',function(){ setUnit(k); }); g.appendChild(b); }); }
+function buildModes(){ var g=document.getElementById('modeTiles'); g.innerHTML='';
+  MORDER.forEach(function(k){ var b=document.createElement('button'); b.className='sm-tile'; b.dataset.v=k;
+    var pv = k==='gauge' ? '<div class="mini" id="mini_'+k+'"></div>' : digits(65,'mph',k==='mirror');
+    b.innerHTML='<span class="pv">'+pv+'</span><b>'+MODES[k][L()]+'</b>';
+    b.addEventListener('click',function(){ S.mode=k; syncScreen(); }); g.appendChild(b); }); }
+function applyStatic(){
+  document.documentElement.lang='en';
+  document.getElementById('sw').setAttribute('dir', S.lang==='ar'?'rtl':'ltr');
+  document.querySelectorAll('[data-t]').forEach(function(el){ el.textContent=t(el.dataset.t); });
+  document.querySelectorAll('[data-th]').forEach(function(el){ el.innerHTML=t(el.dataset.th); });
+  buildUnits(); buildModes();
+}
+function setUnit(k){ if(k===S.unit) { syncScreen(); return; } var mph=S.limit/U().f; S.unit=k; S.limit=clampLim(mph*U().f); syncScreen(); }
+
+/* ================= everything downstream reads S ================= */
+var payAnim=null, payV=0;
+function syncScreen(){
+  var li=L(), u=U();
+  gauge('gWel', 75, 'mph', 'grey');
+  gauge('gUnits', conv(75,S.unit), S.unit, 'blue');
+  document.querySelectorAll('#unitSeg .sm-opt').forEach(function(b){ b.classList.toggle('on', b.dataset.v===S.unit); });
+  gauge('gLimit', S.limit, S.unit, 'red');
+  document.getElementById('limSign').textContent=S.limit;
+  document.getElementById('limVal').textContent=lim();
+  document.querySelectorAll('#modeTiles .sm-tile').forEach(function(b){ b.classList.toggle('on', b.dataset.v===S.mode); });
+  var mini=document.getElementById('mini_gauge'); if(mini){ mini.innerHTML='<div class="sm-gauge" style="--gs:70px;top:0" id="gMini"></div>'; gauge('gMini',conv(65,S.unit),S.unit,'blue'); }
+  document.querySelectorAll('#modeTiles .sm-tile[data-v=digital] .pv,#modeTiles .sm-tile[data-v=mirror] .pv').forEach(function(p){ p.innerHTML=digits(conv(65,S.unit),S.unit,p.parentNode.dataset.v==='mirror'); });
+  var dg=S.mode==='gauge';
+  document.getElementById('gDisp').classList.toggle('hidden',!dg); document.getElementById('pvBig').classList.toggle('hidden',dg);
+  if(dg) gauge('gDisp', conv(65,S.unit), S.unit, 'blue'); else document.getElementById('pvBig').innerHTML=digits(conv(65,S.unit),S.unit,S.mode==='mirror');
+  /* loader lines */
+  var st=document.querySelectorAll('#loadSteps .sm-l .t');
+  st[0].textContent=t('ld.u',{u:ush()});
+  st[1].textContent=t('ld.l',{v:lim()});
+  st[2].textContent=t('ld.m',{m:MODES[S.mode][li]});
+  st[3].textContent=t('ld.t');
+  /* payoff */
+  document.getElementById('poLab').textContent=MODES[S.mode][li];
+  document.getElementById('poLab').className='sm-mlab '+(payV>S.limit?'red':'blue');
+  ['poSign','pwSign','apSign'].forEach(function(id){ document.getElementById(id).textContent=S.limit; });
+  document.getElementById('poSub').textContent=t('po.s',{v:lim()});
+  document.getElementById('poUnit').textContent=u.full[li]+' · '+ush();
+  document.getElementById('poAlert').textContent=lim();
+  document.getElementById('poView').textContent=MODES[S.mode][li];
+  paintPay();
+  /* paywall */
+  gauge('gPw', S.limit, S.unit, 'blue');
+  document.getElementById('payH').innerHTML=t('pw.h',{v:lim()});
+  var ck='<i><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></i>';
+  document.getElementById('featList').innerHTML=['pw.f1','pw.f2','pw.f3','pw.f4'].map(function(k){ return '<div class="sm-f">'+ck+'<span>'+t(k)+'</span></div>'; }).join('');
+  /* offer */
+  document.getElementById('ofT1').textContent=t('of.t1',{v:lim(),m:S.lang==='ar'?MODES[S.mode][li]:MODES[S.mode][li].toLowerCase()});
+  /* app */
+  gauge('gApp', 0, S.unit, 'blue'); document.getElementById('apAvg').textContent='0 '+ush();
+}
+function paintPay(){
+  var over=payV>S.limit, tone=over?'red':'blue';
+  var dg=S.mode==='gauge';
+  document.getElementById('gPay').classList.toggle('hidden',!dg);
+  document.getElementById('pvPay').classList.toggle('hidden',dg);
+  if(dg) gauge('gPay', payV, S.unit, tone); else document.getElementById('pvPay').innerHTML=digits(payV,S.unit,S.mode==='mirror',over);
+  document.getElementById('poSign').style.opacity=over?1:.35;
+  var lab=document.getElementById('poLab'); lab.className='sm-mlab '+(over?'red':'blue');
+}
+function runPay(){ cancelAnimationFrame(payAnim); var from=Math.max(0,S.limit-S.limit*.35), to=S.limit+U().step*.6, t0=performance.now(), dur=(demo.on?1500:2200);
+  function f(now){ var p=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-p,2); payV=Math.round(from+(to-from)*e); paintPay(); if(p<1) payAnim=requestAnimationFrame(f); }
+  payAnim=requestAnimationFrame(f); }
+
+/* ================= router ================= */
+var ORDER=['welcome','units','limit','display','loader','payoff','paywall','offer','app'];
+var LABEL={welcome:'Welcome',units:'Units',limit:'Speed limit',display:'Display',loader:'Loader',payoff:'Payoff',paywall:'Paywall',offer:'Offer on close',app:'App'};
+var scr={}, hist=[], cur='welcome', loadTimers=[];
+document.querySelectorAll('.scr').forEach(function(s){ scr[s.dataset.id]=s; });
+
+function chrome(){ var l=S.theme==='light'; document.getElementById('sbar').classList.toggle('dk',l); document.getElementById('homebar').classList.toggle('dk',l); }
+function enter(id){ chrome(); paintChips(); paintPanel(); clearLoad();
+  if(id==='loader') runLoader(); if(id==='payoff') runPay(); else { payV=S.limit+U().step*.6|0; } }
+function go(id,opts){
+  opts=opts||{}; if(id===cur) return;
+  var from=scr[cur], to=scr[id];
+  if(!opts.back) hist.push(cur);
+  if(from){ from.classList.remove('is-active');
+    if(!to.classList.contains('sheet') && !from.classList.contains('sheet')) from.classList.add('is-past'); }
+  if(to.classList.contains('sheet')) from.classList.add('is-active');
+  Object.keys(scr).forEach(function(k){ if(k!==id && !(to.classList.contains('sheet') && k===cur)) scr[k].classList.remove('is-active'); });
+  to.classList.remove('is-past'); to.classList.add('is-active');
+  cur=id; enter(id);
+}
+function jump(id){
+  var i=ORDER.indexOf(id);
+  Object.keys(scr).forEach(function(k){ scr[k].classList.add('nofx'); scr[k].classList.remove('is-active','is-past'); });
+  hist=ORDER.slice(0,i<0?0:i);
+  if(id==='offer') scr.paywall.classList.add('is-active');
+  scr[id].classList.add('is-active'); cur=id;
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){
+    Object.keys(scr).forEach(function(k){ scr[k].classList.remove('nofx'); }); }); });
+  syncScreen(); enter(id);
+}
+function paintChips(){
+  var c=document.getElementById('chips');
+  if(!c.children.length){ ORDER.forEach(function(id){
+      var b=document.createElement('button'); b.className='chip'+(id==='offer'?' offer':''); b.textContent=LABEL[id];
+      b.dataset.id=id; b.onclick=function(){ stopDemo(); jump(id); }; c.appendChild(b); }); }
+  c.querySelectorAll('.chip').forEach(function(b){ b.classList.toggle('on', b.dataset.id===cur); });
+}
+function clearLoad(){ loadTimers.forEach(clearTimeout); loadTimers=[]; }
+function runLoader(){
+  var k=demo.on?0.48:1, steps=[].slice.call(document.querySelectorAll('#loadSteps .sm-l'));
+  steps.forEach(function(s){ s.classList.remove('on'); });
+  var t0=performance.now(), dur=4200*k, tgt=S.limit;
+  (function f(now){ if(cur!=='loader') return; var p=Math.min(1,(now-t0)/dur); gauge('gLoad', Math.round(tgt*p), S.unit, 'blue'); if(p<1) requestAnimationFrame(f); })(t0);
+  steps.forEach(function(s,i){ loadTimers.push(setTimeout(function(){ s.classList.add('on'); },(500+i*850)*k)); });
+  loadTimers.push(setTimeout(function(){ if(cur==='loader') go('payoff'); },4700*k));
+}
+
+/* ================= wiring ================= */
+document.querySelectorAll('[data-go]').forEach(function(b){ b.addEventListener('click',function(){ go(b.dataset.go); }); });
+document.querySelectorAll('[data-goto]').forEach(function(b){ b.addEventListener('click',function(){ jump(b.dataset.goto); }); });
+document.getElementById('payClose').addEventListener('click',function(){ go('offer'); });
+document.getElementById('payCta').addEventListener('click',function(){ go('app'); });
+document.getElementById('offerCta').addEventListener('click',function(){ go('app'); });
+document.getElementById('offClose').addEventListener('click',function(){ go('app'); });
+document.getElementById('offNo').addEventListener('click',function(){ go('app'); });
+function stepLim(d){ S.limit=clampLim(S.limit+d*U().step); syncScreen(); }
+document.getElementById('limMinus').addEventListener('click',function(){ stepLim(-1); });
+document.getElementById('limPlus').addEventListener('click',function(){ stepLim(1); });
+/* the red dial is a working control: drag along the arc */
+(function(){ var el=document.getElementById('gLimit'), drag=false;
+  function setFrom(e){ var r=el.getBoundingClientRect(), x=e.clientX-(r.left+r.width/2), y=e.clientY-(r.top+r.height/2);
+    var a=Math.atan2(y,x)*180/Math.PI; if(a<A0-90) a+=360; var f=(a-A0)/SW; if(f<-.1||f>1.1) return; f=Math.max(0,Math.min(1,f));
+    var v=clampLim(f*U().gmax); if(v!==S.limit){ S.limit=v; syncScreen(); } }
+  el.addEventListener('pointerdown',function(e){ drag=true; el.setPointerCapture(e.pointerId); setFrom(e); });
+  el.addEventListener('pointermove',function(e){ if(drag) setFrom(e); });
+  el.addEventListener('pointerup',function(){ drag=false; });
+  el.addEventListener('pointercancel',function(){ drag=false; });
+})();
+
+function setSeg(id,attr,val){ document.querySelectorAll('#'+id+' button').forEach(function(b){ b.classList.toggle('on', b.dataset[attr]===val); }); }
+function setLang(l){ S.lang=l; S0.lang=l; setSeg('segLang','lang',l); applyStatic(); syncScreen(); paintPanel(); }
+function setTheme(th){ S.theme=th; S0.theme=th; document.getElementById('phoneIn').classList.toggle('light',th==='light'); setSeg('segTheme','theme',th); chrome(); syncScreen(); }
+document.querySelectorAll('#segLang button').forEach(function(b){ b.addEventListener('click',function(){ stopDemo(); setLang(b.dataset.lang); }); });
+document.querySelectorAll('#segTheme button').forEach(function(b){ b.addEventListener('click',function(){ setTheme(b.dataset.theme); }); });
+
+/* ================= the 30-second walkthrough ================= */
+var demo={tok:0,on:false,t0:0,iv:null}, finger=document.getElementById('finger'), phoneIn=document.getElementById('phoneIn');
+function W(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+function cap(txt){ document.getElementById('demoTxt').textContent=txt; }
+async function tap(sel,tok){
+  if(demo.tok!==tok) throw 0;
+  var el=document.querySelector(sel); if(!el) return;
+  var r=el.getBoundingClientRect(), p=phoneIn.getBoundingClientRect(), z=p.width/phoneIn.offsetWidth||1;
+  finger.style.left=((r.left-p.left+r.width/2)/z)+'px'; finger.style.top=((r.top-p.top+r.height/2)/z)+'px';
+  finger.classList.add('show'); await W(380); if(demo.tok!==tok) throw 0;
+  finger.classList.add('press'); await W(120); finger.classList.remove('press'); el.click(); await W(160);
+  if(demo.tok!==tok) throw 0;
+}
+async function pause(ms,tok){ await W(ms); if(demo.tok!==tok) throw 0; }
+function startDemo(){
+  stopDemo(); var tok=++demo.tok; demo.on=true; demo.t0=Date.now();
+  var keep={lang:S.lang,theme:S.theme}; S=defaults(); S.lang=keep.lang; S.theme=keep.theme;
+  applyStatic(); jump('welcome');
+  document.getElementById('demoCap').classList.remove('hidden');
+  demo.iv=setInterval(function(){ document.getElementById('demoProg').style.width=Math.min(100,(Date.now()-demo.t0)/290)+'%'; },200);
+  (async function(){
+    try{
+      cap('A new install opens on your own welcome screen, unchanged.'); await pause(1500,tok);
+      await tap('[data-id=welcome] .sm-btn',tok);
+      cap('Three setup taps the app really uses. First: units.'); await pause(700,tok);
+      await tap('#unitSeg [data-v=kmh]',tok); await pause(600,tok); await tap('[data-id=units] .sm-btn',tok);
+      cap('Their speed limit, set on your own red dial.'); await pause(700,tok);
+      await tap('#limPlus',tok); await pause(250,tok); await tap('#limPlus',tok); await pause(500,tok); await tap('[data-id=limit] .sm-btn',tok);
+      cap('Gauge, digital or mirror — the views from your own screenshots.'); await pause(650,tok);
+      await tap('#modeTiles [data-v=mirror]',tok); await pause(700,tok); await tap('[data-id=display] .sm-btn',tok);
+      cap('Their answers, read back while it sets up.'); await pause(2400,tok);
+      cap('Their speedometer, turning red the moment it passes their limit.'); await pause(2600,tok);
+      await tap('[data-id=payoff] .sm-btn',tok);
+      cap('The paywall names their alert, with your 4.6 rating and what Pro unlocks.'); await pause(2600,tok);
+      cap('They close it. The same 3-day trial, laid out day by day.'); await tap('#payClose',tok); await pause(2800,tok);
+      cap('That is the flow: their setup first, then the price, then a second chance.');
+      finger.classList.remove('show'); await pause(2000,tok); stopDemo();
+    }catch(e){}
+  })();
+}
+function stopDemo(){ if(!demo.on) return; demo.tok++; demo.on=false; clearInterval(demo.iv); finger.classList.remove('show','press');
+  document.getElementById('demoCap').classList.add('hidden'); }
+document.getElementById('demoBtn').addEventListener('click',startDemo);
+document.getElementById('demoStop').addEventListener('click',stopDemo);
+phoneIn.addEventListener('pointerdown',function(e){ if(e.isTrusted && demo.on) stopDemo(); });
+</script>
+<script>
+/* ---- the short panel: hypothesis + potential outcome, nothing else ---- */
+var PANEL = {
+welcome:{ctx:true,t:'Welcome to Speedometer',
+ kept:'Your first slide as it ships — the phone outline, the grey dial at 75 mph, the uppercase headline and the blue Continue. The only edit: the label above the dial reads “Simple Speedometer”; today it says “SEEDOMETER”.'},
+units:{n:2,t:'Turn your speed-limit slide into the real setting',
+ hyp:'Try asking how they measure speed, <b>because the app already offers miles, kilometres and knots and every later screen can then speak their unit</b>. Tap km/h and the dial, the alert and the paywall headline all change.',
+ kept:'Your blue dial and label, your uppercase type, and the three options drawn in the shape of your Continue button.',
+ out:'CR +10–15%'},
+limit:{n:2,t:'Turn your speed-limit slide into the real setting',
+ hyp:'Try letting them set the limit here, <b>because speed-limit alerts are the feature your slide already sells, and today nobody sets one until after paying</b>. Drag the red dial or tap − / +.',
+ kept:'Your Speed Limit slide — the red sign, the red dial and its glow — rebuilt as a working control.',
+ out:'CR +10–15%'},
+display:{n:2,t:'Turn your speed-limit slide into the real setting',
+ hyp:'Try asking which view they want, <b>because gauge, digital and mirror are three real modes in the app, and mirror mode is the one people buy it for at night</b>.',
+ kept:'Gauge, Digital and Mirror are the three views shown in your own App Store screenshots.',
+ out:'CR +10–15%'},
+loader:{n:3,t:'Show their speedometer before the price',
+ hyp:'Try reading their answers back while it sets up, <b>because a short wait only pays off when something personal comes after it</b>. Every line here comes from a tap they just made.',
+ kept:'Your blue dial, sweeping up to their limit. The rating line is your US App Store figure.',
+ out:'CR +10–20%'},
+payoff:{n:3,t:'Show their speedometer before the price',
+ hyp:'Try showing the speedometer they just set up, <b>because it is the app doing exactly what they will pay for: their units, their view, and the dial turning red above their limit</b>. Tap Change on any row to go back and adjust it.',
+ kept:'Your dial, your red sign and your blue-to-red switch from the Speed Limit slide. Nothing on this screen is a promise the app does not keep.',
+ out:'CR +10–20%'},
+paywall:{n:4,t:'Make the paywall headline their own setting',
+ hyp:'Try naming their alert in your headline, <b>because “Activate speedometer now” says the same thing to everyone, and the flow now knows their unit and their limit</b>. Go back to Speed limit, change it, and the headline follows.',
+ hyp2:'Try putting your 4.6 from 8.9K ratings and the four things Pro unlocks above the button, <b>because the paywall today shows neither, so the trial line is the only reason given to start</b>.',
+ n2:5, out2:'CR +10–15%',
+ kept:'Your close at top-left and Restore at top-right, the blue dial and label, the trial line word for word, Start Free Trial and the Privacy Policy and Terms footer. The four features are the ones in your App Store description.',
+ out:'CR +15–20%'},
+offer:{n:1,t:'Give the trial a second screen, laid out day by day',
+ hyp:'Try this screen when someone closes the paywall, <b>because the trial is today explained in one line of small caps, and your App Store reviews show people who missed how it works</b>. It is the same Speedometer Pro trial, the same ₪29.90 a week, shown as today, days 1–3 and day 3.',
+ kept:'Your dark surface, blue accents and button. No discount and no countdown, because the store lists one subscription and no lower price.',
+ out:'ARPU +10–15%'},
+app:{ctx:true,t:'Your speedometer, after purchase',
+ kept:'Where the flow hands over to your app — your main screen with the dial, the red Record button and trip stats, already in their units and with their limit set. GPS access is asked by the app from here, as today.'}
+};
+function outBlock(lab,val){ return '<div class="pn-out"><div class="lab">'+lab+'</div><div class="v">'+val+'</div></div>'; }
+function paintPanel(){
+  var d=PANEL[cur]; if(!d) return;
+  var h='';
+  if(d.ctx){
+    h += '<div class="pn-n ctx">Context · no change proposed</div><h3 class="pn-t">'+d.t+'</h3><div class="pn-kept">'+d.kept+'</div>';
+  } else {
+    h += '<div class="pn-n">Idea '+d.n+' of 5</div><h3 class="pn-t">'+d.t+'</h3><p class="pn-hyp">'+d.hyp+'</p>'
+       + outBlock('Potential outcome · based on Adapty data', d.out);
+    if(d.hyp2){
+      h += '<div class="pn-sep"></div><div class="pn-n">Idea '+d.n2+' of 5</div>'
+         + '<h3 class="pn-t">Put your 4.6 and what Pro unlocks on the paywall</h3>'
+         + '<p class="pn-hyp">'+d.hyp2+'</p>' + outBlock('Potential outcome · based on Adapty data', d.out2);
+    }
+    h += '<div class="pn-kept"><b>Your design, unchanged.</b> '+d.kept+'</div>';
+  }
+  if(S.lang!=='en') h += '<div class="pn-kept"><b>Language.</b> Screens are shown in '+(S.lang==='ar'?'Arabic, right to left, for your largest non-English storefront':'Spanish')+' and translated by us. The store price stays as published on your paywall, in shekels.</div>';
+  h += '<div class="pn-foot">Ranges are Adapty’s expected effect from tests across 30,000+ subscription apps — not measured lift for Speedometer GPS. Prices, ratings and feature lines come from your own published material.</div>';
+  document.getElementById('panel').innerHTML = h;
+}
+
+/* ---- views, jumps from the overview ---- */
+function showView(v){
+  if(v!=='proto') stopDemo();
+  document.querySelectorAll('.view').forEach(function(x){ x.classList.remove('on'); });
+  document.getElementById('view-'+v).classList.add('on');
+  document.querySelectorAll('.nav-links button[data-view]').forEach(function(b){ b.classList.toggle('on', b.dataset.view===v); });
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('[data-view]').forEach(function(b){ b.addEventListener('click',function(){ showView(b.dataset.view); }); });
+document.querySelectorAll('.idea[data-jump]').forEach(function(b){
+  b.addEventListener('click',function(){ showView('proto'); jump(b.dataset.jump); });
+});
+document.querySelectorAll('[data-demo]').forEach(function(b){ b.addEventListener('click',function(){ showView('proto'); startDemo(); }); });
+
+applyStatic();
+scr.welcome.classList.add('is-active');
+syncScreen(); chrome(); paintChips(); paintPanel();
+if(/[?&]open=proto/.test(location.search)) showView('proto');
+</script>
+</body>
+</html>
